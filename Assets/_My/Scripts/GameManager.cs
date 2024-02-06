@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameManager instance;
 
     [Header("Bullet")]
     [SerializeField]
@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Instance = this;
+        instance = this;
 
         curShootDelay = 0;
     }
@@ -42,12 +42,12 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         bulletText.text = curBullet.ToString() + " / " + maxBullet.ToString();
+
+        curShootDelay += Time.deltaTime;
     }
 
-    public void Shooting(Vector3 targetPos)
+    public void Shooting(Vector3 targetPos, Enemy enemy)
     {
-        curShootDelay += Time.deltaTime;
-
         if (curShootDelay < maxShootDelay || curBullet <= 0)
         {
             return;
@@ -55,18 +55,26 @@ public class GameManager : MonoBehaviour
 
         curBullet--;
         curShootDelay = 0;
+        Vector3 aimDis = (targetPos - bulletPoint.position).normalized;
 
-        Instantiate(weaponFlashFX, bulletPoint);
-        Instantiate(bulletCaseFX, bulletCasePoint);
+        GameObject flashFX = PoolManager.instance.ActivateObj(1);
+        SetObjPosition(flashFX, bulletPoint);
+        flashFX.transform.rotation = Quaternion.LookRotation(aimDis, Vector3.up);
 
-        Vector3 aim = (targetPos - bulletPoint.position).normalized;
-        Instantiate(bulletObj, bulletPoint.position, Quaternion.LookRotation(aim, Vector3.up));
+        GameObject caseFX = PoolManager.instance.ActivateObj(2);
+        SetObjPosition(caseFX, bulletCasePoint);
+
+        GameObject bulletFX = PoolManager.instance.ActivateObj(0);
+        SetObjPosition(bulletFX, bulletPoint);
+        bulletFX.transform.rotation = Quaternion.LookRotation(aimDis, Vector3.up);
     }
 
     public void ReloadClip()
     {
+        GameObject clipFX = PoolManager.instance.ActivateObj(3);
+        SetObjPosition(clipFX, weaponClipPoint);
+
         StartCoroutine(InitBullet());
-        Instantiate(weaponClipFX, weaponClipPoint);
     }
 
     private IEnumerator InitBullet()
@@ -74,5 +82,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         curBullet = maxBullet;
+    }
+
+    private void SetObjPosition(GameObject obj, Transform targetPos)
+    {
+        obj.transform.position = targetPos.position;
     }
 }

@@ -94,6 +94,7 @@ public class PlayerManager : MonoBehaviour
             if (input.shoot)
             {
                 anim.SetBool("Shoot", true);
+                GameManager.Instance.Shooting(targetPosition);
             }
             else
             {
@@ -127,5 +128,10 @@ public class PlayerManager : MonoBehaviour
     {
         aimRig.weight = weight;
         handRig.weight = weight;
+    }
+
+    public void ReloadWeaponClip()
+    {
+        GameManager.Instance.ReloadClip();
     }
 }

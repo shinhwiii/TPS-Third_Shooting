@@ -38,6 +38,11 @@ public class BulletManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Enemy"))
+        {
+            other.gameObject.GetComponent<Enemy>().enemyCurHP--;
+        }
+
         DestroyBullet();
     }
 }

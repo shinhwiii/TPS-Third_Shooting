@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
         curShootDelay += Time.deltaTime;
     }
 
-    public void Shooting(Vector3 targetPos, Enemy enemy)
+    public void Shooting(Vector3 targetPos, Enemy enemy, AudioSource weaponSource, AudioClip shootingSound)
     {
         if (curShootDelay < maxShootDelay || curBullet <= 0)
         {
@@ -55,6 +55,10 @@ public class GameManager : MonoBehaviour
 
         curBullet--;
         curShootDelay = 0;
+
+        weaponSource.clip = shootingSound;
+        weaponSource.Play();
+
         Vector3 aimDis = (targetPos - bulletPoint.position).normalized;
 
         GameObject flashFX = PoolManager.instance.ActivateObj(1);

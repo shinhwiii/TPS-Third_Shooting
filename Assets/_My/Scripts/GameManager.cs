@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class GameManager : MonoBehaviour
     private float curShootDelay;
     [SerializeField]
     private TextMeshProUGUI bulletText;
+    [SerializeField]
+    private GameObject aimImage;
     private int maxBullet = 30;
     private int curBullet = 30;
 
@@ -32,11 +35,26 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject weaponClipFX;
 
+    [Header("Enemy")]
+    [SerializeField]
+    private GameObject[] enemySpawnPoint;
+
+    [Header("BGM")]
+    [SerializeField]
+    private AudioClip bgmSound;
+    private AudioSource bgmSource;
+
+    private PlayableDirector cut;
+    public bool isReady = true;
+
     private void Start()
     {
         instance = this;
 
         curShootDelay = 0;
+
+        cut = GetComponent<PlayableDirector>();
+        cut.Play();
     }
 
     private void Update()
@@ -91,5 +109,38 @@ public class GameManager : MonoBehaviour
     private void SetObjPosition(GameObject obj, Transform targetPos)
     {
         obj.transform.position = targetPos.position;
+    }
+
+    private IEnumerator EnemySpawn()
+    {
+        yield return new WaitForSeconds(2f);
+
+        GameObject enemy = PoolManager.instance.ActivateObj(4);
+
+        SetObjPosition(enemy, enemySpawnPoint[Random.Range(0, enemySpawnPoint.Length)].transform);
+
+        enemy.GetComponent<Enemy>().EnemyStart();
+
+        StartCoroutine(EnemySpawn());
+    }
+
+    private void PlayBGMSound()
+    {
+        bgmSource = GetComponent<AudioSource>();
+        bgmSource.clip = bgmSound;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
+    public void StartGame()
+    {
+        isReady = false;
+
+        bulletText.enabled = true;
+        aimImage.SetActive(true);
+
+        PlayBGMSound();
+
+        StartCoroutine(EnemySpawn());
     }
 }

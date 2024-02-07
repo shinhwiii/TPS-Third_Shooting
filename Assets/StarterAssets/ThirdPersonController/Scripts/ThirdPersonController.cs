@@ -156,6 +156,11 @@ namespace StarterAssets
 
         private void Update()
         {
+            if (GameManager.instance.isReady)
+            {
+                return;
+            }
+
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
